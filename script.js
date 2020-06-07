@@ -37,7 +37,7 @@ function renderTable() {
         <td>${contact.phone}</td><td>${contact.email}</td><td>${contact.address}</td>
         <td>${contact.birthday}</td><td>${contact.details}</td>
         <td> <button onclick="deleteContact(${contact.id})" class="btn back-red text-moon"> <i class='fa fa-trash'></i></button>
-        <button class="btn back-green text-moon"> <i class='fa fa-edit'></i></button></td>`;
+        <button onclick="edit(${contact.id})" class="btn back-green text-moon"> <i class='fa fa-edit'></i></button></td>`;
     tbody.appendChild(tr);
   });
 
@@ -52,7 +52,7 @@ function showForm() {
 }
 
 // When form submit
-function hideForm() {
+function hideForm(e) {
   const el = document.getElementById("form");
   el.classList.remove("show");
 }
@@ -61,7 +61,7 @@ function hideForm() {
 document.getElementById("contact_form").addEventListener("submit", (event) => {
   event.preventDefault();
   // Get contactList from localstorge
-  const contactList = JSON.parse(localStorage.getItem("contactList"));
+  let contactList = JSON.parse(localStorage.getItem("contactList"));
   // Create new contact data obj. from form by FormData constructor function
   const newContact = new FormData(event.target);
   // Create real contact object
@@ -69,14 +69,22 @@ document.getElementById("contact_form").addEventListener("submit", (event) => {
   for (item of newContact.entries()) {
     new_contact[item[0]] = item[1];
   }
-  // Push it into cotact list and updated list into localstorage
-  contactList.push(new_contact);
+
+  const contact = contactList.find((item) => item.id == new_contact.id);
+  if (contact) {
+    contactList = contactList.map((item) => (item.id == new_contact.id ? new_contact : item));
+  } else {
+    // Push it into cotact list and updated list into localstorage
+    contactList.push(new_contact);
+  }
   localStorage.setItem("contactList", JSON.stringify(contactList));
   // Update view of html
   hideForm();
   renderTable();
+  event.target.reset();
 });
 
+// Delete Contact function
 const deleteContact = (id) => {
   Swal.fire({
     title: "Are you sure?",
@@ -99,3 +107,17 @@ const deleteContact = (id) => {
     }
   });
 };
+
+function edit(id) {
+  const contactList = JSON.parse(localStorage.getItem("contactList"));
+  const contact = contactList.find((item) => item.id == id);
+  showForm();
+  document.getElementById("id_id").value = contact.id;
+  document.getElementById("id_name").value = contact.name;
+  document.getElementById("id_last_name").value = contact.lastName;
+  document.getElementById("id_phone").value = contact.phone;
+  document.getElementById("id_email").value = contact.email;
+  document.getElementById("id_address").value = contact.address;
+  document.getElementById("id_birthday").value = contact.birthday;
+  document.getElementById("id_details").value = contact.details;
+}
