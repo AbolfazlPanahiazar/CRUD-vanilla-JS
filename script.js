@@ -33,6 +33,7 @@ function renderTable() {
   // Inject contactList into td, tr tags and apped every one into our tbody
   contactList.map((contact) => {
     const tr = document.createElement("TR");
+    tr.classList.add("text-moon");
     tr.innerHTML = `<td>${contact.id}</td><td>${contact.name}</td><td>${contact.lastName}</td>
         <td>${contact.phone}</td><td>${contact.email}</td><td>${contact.address}</td>
         <td>${contact.birthday}</td><td>${contact.details}</td>
@@ -108,6 +109,7 @@ const deleteContact = (id) => {
   });
 };
 
+// Edit button
 function edit(id) {
   const contactList = JSON.parse(localStorage.getItem("contactList"));
   const contact = contactList.find((item) => item.id == id);
@@ -121,3 +123,50 @@ function edit(id) {
   document.getElementById("id_birthday").value = contact.birthday;
   document.getElementById("id_details").value = contact.details;
 }
+
+// Section Button
+document.getElementById("search").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const input = document.getElementById("search-input").value;
+
+  // If the user cleard the input and submited
+  if (input == "") {
+    renderTable();
+  } else {
+    // Get contactList from localstorge
+    let contactList = JSON.parse(localStorage.getItem("contactList"));
+
+    // Find the ones the includs input
+    contactList = contactList.filter((item, index, array) => {
+      return item.name.includes(input) || item.lastName.includes(input) || item.phone.includes(input);
+    });
+    // Get the existed table-body from html
+    const tbody2 = document.getElementsByTagName("tbody");
+
+    // Remove the existed table-body form html
+    if (tbody2.length > 0) {
+      tbody2[0].remove();
+    }
+
+    // Get the table from html
+    const table = document.getElementById("contact_table");
+
+    // Create new table-body
+    const tbody = document.createElement("TBODY");
+
+    // Inject contactList into td, tr tags and apped every one into our tbody
+    contactList.map((contact) => {
+      const tr = document.createElement("TR");
+      tr.classList.add("text-moon");
+      tr.innerHTML = `<td>${contact.id}</td><td>${contact.name}</td><td>${contact.lastName}</td>
+        <td>${contact.phone}</td><td>${contact.email}</td><td>${contact.address}</td>
+        <td>${contact.birthday}</td><td>${contact.details}</td>
+        <td> <button onclick="deleteContact(${contact.id})" class="btn back-red text-moon"> <i class='fa fa-trash'></i></button>
+        <button onclick="edit(${contact.id})" class="btn back-green text-moon"> <i class='fa fa-edit'></i></button></td>`;
+      tbody.appendChild(tr);
+    });
+
+    // Append our table-body into the table in html
+    table.appendChild(tbody);
+  }
+});
